@@ -79,7 +79,31 @@ export const constantRoutes = [
         path: 'dashboard',
         component: () => import('@/views/dashboard/index'),
         name: 'Dashboard',
-        meta: { title: 'Dashboard', icon: 'dashboard', affix: true }
+        meta: { title: '首页', icon: 'dashboard', affix: true }
+      }
+    ]
+  },
+  {
+    path: '/article',
+    component: Layout,
+    name: 'article',
+    meta: {
+      title: '文章管理',
+      icon: 'lock'
+    },
+    redirect: '/list',
+    children: [
+      {
+        path: 'list',
+        component: () => import('@/views/articlelist/index'),
+        name: 'Dashboard',
+        meta: { title: '文章列表', icon: 'documentation', affix: true }
+      },
+      {
+        path: 'pub',
+        component: () => import('@/views/articlelist/create'),
+        name: 'Dashboard',
+        meta: { title: '文章发布', icon: 'documentation', affix: true }
       }
     ]
   },

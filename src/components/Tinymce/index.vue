@@ -214,6 +214,7 @@ export default {
 .tinymce-container {
   position: relative;
   line-height: normal;
+  // overflow:auto;
 }
 
 .tinymce-container {
@@ -221,6 +222,9 @@ export default {
     .mce-fullscreen {
       z-index: 10000;
     }
+    .mce-panel{
+  overflow: auto;
+}
   }
 }
 
