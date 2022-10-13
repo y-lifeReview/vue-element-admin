@@ -7,7 +7,10 @@
       :on-success="handleImageSuccess"
       class="image-uploader"
       drag
-      action="https://httpbin.org/post"
+      headers="{
+        Content-Type: multipart/form-data; boundary=Multipart Boundary
+      }"
+      action="sprinkle-1300857039.cos.ap-chengdu.myqcloud.com"
     >
       <i class="el-icon-upload" />
       <div class="el-upload__text">

@@ -7,21 +7,23 @@
       :on-success="handleImageSuccess"
       class="image-uploader"
       drag
-      action="https://httpbin.org/post"
+      :before-upload="beforeUpload"
+      :action="imgurl"
+      v-loading="uploading"
     >
       <i class="el-icon-upload" />
       <div class="el-upload__text">
         将文件拖到此处，或<em>点击上传</em>
       </div>
     </el-upload>
-    <div class="image-preview image-app-preview">
+    <!-- <div class="image-preview image-app-preview">
       <div v-show="imageUrl.length>1" class="image-preview-wrapper">
         <img :src="imageUrl">
         <div class="image-preview-action">
           <i class="el-icon-delete" @click="rmImage" />
         </div>
       </div>
-    </div>
+    </div> -->
     <div class="image-preview">
       <div v-show="imageUrl.length>1" class="image-preview-wrapper">
         <img :src="imageUrl">
@@ -34,8 +36,10 @@
 </template>
 
 <script>
-import { getToken } from '@/api/qiniu'
-
+// import { getToken } from '@/api/qiniu'
+import {
+  getToken
+} from '@/utils/auth'
 export default {
   name: 'SingleImageUpload3',
   props: {
@@ -46,8 +50,10 @@ export default {
   },
   data() {
     return {
+      imgurl:process.env.VUE_APP_BASE_IMGAPI,
       tempUrl: '',
-      dataObj: { token: '', key: '' }
+      dataObj: {  },
+      uploading:false
     }
   },
   computed: {
@@ -62,24 +68,30 @@ export default {
     emitInput(val) {
       this.$emit('input', val)
     },
-    handleImageSuccess(file) {
-      this.emitInput(file.files.file)
+    handleImageSuccess(res) {
+      console.log('上传结果',res)
+      this.uploading=false
+      this.emitInput(res.data.url)
     },
     beforeUpload() {
-      const _self = this
-      return new Promise((resolve, reject) => {
-        getToken().then(response => {
-          const key = response.data.qiniu_key
-          const token = response.data.qiniu_token
-          _self._data.dataObj.token = token
-          _self._data.dataObj.key = key
-          this.tempUrl = response.data.qiniu_url
-          resolve(true)
-        }).catch(err => {
-          console.log(err)
-          reject(false)
-        })
-      })
+      // const _self = this
+      console.log('文件上传')
+      this.uploading=true
+      this.dataObj.token = getToken()
+
+      // return new Promise((resolve, reject) => {
+      //   getToken().then(response => {
+      //     const key = response.data.qiniu_key
+      //     const token = response.data.qiniu_token
+      //     _self._data.dataObj.token = token
+      //     _self._data.dataObj.key = key
+      //     this.tempUrl = response.data.qiniu_url
+      //     resolve(true)
+      //   }).catch(err => {
+      //     console.log(err)
+      //     reject(false)
+      //   })
+      // })
     }
   }
 }

@@ -198,12 +198,13 @@
           >
         </el-form-item>
 
-        <el-form-item prop="content" style="margin-bottom: 30px">
+        <el-form-item prop="content"  style="margin-bottom: 30px">
           <!-- <Tinymce ref="editor" v-model="postForm.content" :height="400" /> -->
-          <markdown-editor v-model="postForm.content" :height="400"/>
+          <markdown-editor v-model="postForm.content" height="400px"/>
         </el-form-item>
 
-        <el-form-item prop="image_uri" style="margin-bottom: 30px">
+        <el-form-item prop="image_uri" label-width="60px"
+              label="封面图:"  style="margin-bottom: 30px">
           <Upload v-model="postForm.image_uri" />
         </el-form-item>
       </div>
@@ -227,14 +228,15 @@ const defaultForm = {
   anwser:'',
   isPassword:false,
   ques:'',
-  status: "draft",
+  category:'',
+  // status: "draft",
   title: "", // 文章题目
   content: "", // 文章内容
   content_short: "", // 文章摘要
   // source_uri: '', // 文章外链
   image_uri: "", // 文章图片
-  display_time: undefined, // 前台展示时间
-  id: undefined,
+  // display_time: undefined, // 前台展示时间
+  // id: undefined,
   // platforms: ['a-platform'],
   // comment_disabled: false,
   // importance: 0
@@ -298,20 +300,21 @@ export default {
     contentShortLength() {
       return this.postForm.content_short.length;
     },
-    displayTime: {
-      // set and get is useful when the data
-      // returned by the back end api is different from the front end
-      // back end return => "2013-06-25 06:59:25"
-      // front end need timestamp => 1372114765000
-      get() {
-        return +new Date(this.postForm.display_time);
-      },
-      set(val) {
-        this.postForm.display_time = new Date(val);
-      },
-    },
+    // displayTime: {
+    //   // set and get is useful when the data
+    //   // returned by the back end api is different from the front end
+    //   // back end return => "2013-06-25 06:59:25"
+    //   // front end need timestamp => 1372114765000
+    //   get() {
+    //     return +new Date(this.postForm.display_time);
+    //   },
+    //   set(val) {
+    //     this.postForm.display_time = new Date(val);
+    //   },
+    // },
   },
   mounted() {
+    
     this.getRemoteUserList();
     this.getAllCategory();
   },
@@ -362,13 +365,15 @@ export default {
       this.$refs.postForm.validate((valid) => {
         if (valid) {
           this.loading = true;
-          this.$notify({
-            title: "成功",
-            message: "发布文章成功",
-            type: "success",
-            duration: 2000,
-          });
-          this.postForm.status = "published";
+          
+
+          // this.$notify({
+          //   title: "成功",
+          //   message: "发布文章成功",
+          //   type: "success",
+          //   duration: 2000,
+          // });
+          // this.postForm.status = "published";
           this.loading = false;
         } else {
           console.log("error submit!!");
