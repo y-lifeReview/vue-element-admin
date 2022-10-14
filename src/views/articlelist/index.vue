@@ -118,7 +118,7 @@
       </el-table-column>
       <el-table-column label="封面图" align="center" width="95">
         <template slot-scope="{ row }">
-          <img style="width: 50px; height: 50px" :src="row.url" />
+          <img style="width: 50px; height: 50px" :src="row.img" />
         </template>
       </el-table-column>
       <el-table-column label="摘要" :show-overflow-tooltip="true" min-width="100px">

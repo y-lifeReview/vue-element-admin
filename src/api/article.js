@@ -7,6 +7,13 @@ export function fetchList(query) {
     params: query
   })
 }
+export function articlePub(data) {
+  return request({
+    url: '/article/pub',
+    method: 'post',
+    data
+  })
+}
 
 export function fetchArticle(id) {
   return request({

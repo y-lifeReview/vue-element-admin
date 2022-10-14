@@ -41,7 +41,7 @@
               <el-row>
                 <el-col :span="8">
                   <el-form-item
-                  style="margin-bottom: 10px"
+                    style="margin-bottom: 10px"
                     label-width="60px"
                     label="作者:"
                     class="postInfo-container-item"
@@ -66,7 +66,7 @@
                 </el-col>
                 <el-col :span="8">
                   <el-form-item
-                  style="margin-bottom: 10px"
+                    style="margin-bottom: 10px"
                     label-width="60px"
                     label="分类:"
                     class="postInfo-container-item"
@@ -134,14 +134,14 @@
               label="问题:"
               prop="ques"
             >
-            <el-input
-            v-model="postForm.ques"
-            :rows="1"
-            type="textarea"
-            class="article-textarea"
-            autosize
-            placeholder="Please enter the ques"
-          />
+              <el-input
+                v-model="postForm.ques"
+                :rows="1"
+                type="textarea"
+                class="article-textarea"
+                autosize
+                placeholder="Please enter the ques"
+              />
             </el-form-item>
           </el-col>
           <el-col v-if="postForm.isPassword" :span="8">
@@ -151,15 +151,14 @@
               label="答案:"
               prop="anwser"
             >
-            <el-input
-            v-model="postForm.anwser"
-            :rows="1"
-            type="textarea"
-            class="article-textarea"
-            autosize
-            placeholder="Please enter the anwser"
-          />
-          
+              <el-input
+                v-model="postForm.anwser"
+                :rows="1"
+                type="textarea"
+                class="article-textarea"
+                autosize
+                placeholder="Please enter the anwser"
+              />
             </el-form-item>
           </el-col>
           <el-col :span="3">
@@ -198,13 +197,17 @@
           >
         </el-form-item>
 
-        <el-form-item prop="content"  style="margin-bottom: 30px">
+        <el-form-item prop="content" style="margin-bottom: 30px">
           <!-- <Tinymce ref="editor" v-model="postForm.content" :height="400" /> -->
-          <markdown-editor v-model="postForm.content" height="400px"/>
+          <markdown-editor v-model="postForm.content" height="400px" />
         </el-form-item>
 
-        <el-form-item prop="image_uri" label-width="60px"
-              label="封面图:"  style="margin-bottom: 30px">
+        <el-form-item
+          prop="image_uri"
+          label-width="60px"
+          label="封面图:"
+          style="margin-bottom: 30px"
+        >
           <Upload v-model="postForm.image_uri" />
         </el-form-item>
       </div>
@@ -214,21 +217,21 @@
 
 <script>
 // import Tinymce from "@/components/Tinymce";
-import MarkdownEditor from '@/components/MarkdownEditor'
+import MarkdownEditor from "@/components/MarkdownEditor";
 import Upload from "@/components/Upload/SingleImage3";
 import MDinput from "@/components/MDinput";
 import Sticky from "@/components/Sticky"; // 粘性header组件
 import { validURL } from "@/utils/validate";
-import { fetchArticle } from "@/api/article";
+import { fetchArticle, articlePub } from "@/api/article";
 import { searchUser, searchCate } from "@/api/remote-search";
 // import { CommentDropdown, PlatformDropdown, SourceUrlDropdown } from './Dropdown'
 
 const defaultForm = {
-  isOrder:false,
-  anwser:'',
-  isPassword:false,
-  ques:'',
-  category:'',
+  isOrder: false,
+  anwser: "",
+  isPassword: false,
+  ques: "",
+  category: "",
   // status: "draft",
   title: "", // 文章题目
   content: "", // 文章内容
@@ -314,7 +317,6 @@ export default {
     // },
   },
   mounted() {
-    
     this.getRemoteUserList();
     this.getAllCategory();
   },
@@ -361,20 +363,34 @@ export default {
       document.title = `${title} - ${this.postForm.id}`;
     },
     submitForm() {
-      console.log(this.postForm);
+      this.postForm.uid = this.postForm.author.split("_")[1];
+      // console.log(this.postForm);
       this.$refs.postForm.validate((valid) => {
         if (valid) {
           this.loading = true;
-          
+          let _this = this
+          articlePub(this.postForm)
+            .then((result) => {
+              _this.$notify({
+                title: "成功",
+                message: "发布文章成功",
+                type: "success",
+                duration: 2000,
+              });
+              _this.loading = false;
+            })
+            .catch((err) => {
+              this.$notify({
+                title: "失败",
+                message: "发布文章失败",
+                type: "fail",
+                duration: 2000,
+              });
+              _this.loading = false;
+            });
 
-          // this.$notify({
-          //   title: "成功",
-          //   message: "发布文章成功",
-          //   type: "success",
-          //   duration: 2000,
-          // });
           // this.postForm.status = "published";
-          this.loading = false;
+          
         } else {
           console.log("error submit!!");
           return false;
