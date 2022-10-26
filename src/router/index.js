@@ -108,14 +108,14 @@ export const constantRoutes = [
     ]
   },
   {
-    path: '/documentation',
+    path: '/sigin',
     component: Layout,
     children: [
       {
         path: 'index',
-        component: () => import('@/views/documentation/index'),
+        component: () => import('@/views/sigin/index'),
         name: 'Documentation',
-        meta: { title: 'Documentation', icon: 'documentation', affix: true }
+        meta: { title: '签名管理', icon: 'edit', affix: true }
       }
     ]
   },
