@@ -96,14 +96,14 @@ export const constantRoutes = [
       {
         path: 'list',
         component: () => import('@/views/articlelist/index'),
-        name: 'Dashboard',
-        meta: { title: '文章列表', icon: 'documentation', affix: true }
+        name: 'ArticleList',
+        meta: { title: '文章列表', icon: 'documentation' }
       },
       {
         path: 'pub',
         component: () => import('@/views/articlelist/create'),
-        name: 'Dashboard',
-        meta: { title: '文章发布', icon: 'documentation', affix: true }
+        name: 'ArticlePub',
+        meta: { title: '文章发布', icon: 'documentation' }
       }
     ]
   },
@@ -114,8 +114,20 @@ export const constantRoutes = [
       {
         path: 'index',
         component: () => import('@/views/sigin/index'),
-        name: 'Documentation',
-        meta: { title: '签名管理', icon: 'edit', affix: true }
+        name: 'sign',
+        meta: { title: '签名管理', icon: 'edit' }
+      }
+    ]
+  },
+  {
+    path: '/aside',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/aside/index'),
+        name: 'aside',
+        meta: { title: '侧边栏管理', icon: 'edit' }
       }
     ]
   },
@@ -128,7 +140,7 @@ export const constantRoutes = [
         path: 'index',
         component: () => import('@/views/guide/index'),
         name: 'Guide',
-        meta: { title: 'Guide', icon: 'guide', noCache: true }
+        meta: { title: 'Guide', icon: 'guide' }
       }
     ]
   },
@@ -142,7 +154,7 @@ export const constantRoutes = [
         path: 'index',
         component: () => import('@/views/profile/index'),
         name: 'Profile',
-        meta: { title: 'Profile', icon: 'user', noCache: true }
+        meta: { title: 'Profile', icon: 'user' }
       }
     ]
   }

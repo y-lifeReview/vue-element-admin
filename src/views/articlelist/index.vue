@@ -6,7 +6,7 @@
       :data="list"
       border
       stripe
-      height="450px"
+      height="550px"
       empty-text="无"
       highlight-current-row
       style="width: 100%"
@@ -27,7 +27,7 @@
       <el-table-column
         label="标题"
         :show-overflow-tooltip="true"
-        min-width="100px"
+        min-width="150px"
       >
         <template slot-scope="{ row }">
           <span>{{ row.title }}</span>
@@ -69,7 +69,7 @@
         </template>
       </el-table-column>
       <el-table-column
-        label="文章链接"
+        label="内容"
         :show-overflow-tooltip="true"
         width="110px"
         align="left"
@@ -91,7 +91,7 @@
         align="center"
       >
         <template slot-scope="{ row }">
-          <span>{{ row.ques || "无" }}</span>
+          <span>{{ row.ques === "0" ? "无" : row.ques }}</span>
         </template>
       </el-table-column>
       <el-table-column
@@ -101,7 +101,7 @@
         align="center"
       >
         <template slot-scope="{ row }">
-          <span>{{ row.password || "无" }}</span>
+          <span>{{ row.anwser === "0" ? "无" : row.anwser }}</span>
         </template>
       </el-table-column>
       <el-table-column label="浏览量" align="center" width="95">
@@ -110,14 +110,53 @@
         </template>
       </el-table-column>
       <el-table-column
+        label="置顶状态"
+        :show-overflow-tooltip="true"
+        width="100px"
+        align="center"
+      >
+        <template slot-scope="{ row }">
+          <span style="color: red" v-if="row.isorder">已置顶</span>
+          <span v-else>未置顶</span>
+        </template>
+      </el-table-column>
+      <el-table-column
         label="Actions"
         align="center"
         width="230"
+        fixed="right"
         class-name="small-padding fixed-width"
       >
         <template slot-scope="{ row }">
-          <el-button type="primary" size="mini" @click="handleUpdate(row)">
-            编辑
+          <el-button
+            v-if="row.is_draft === 1"
+            type="warning"
+            size="mini"
+            @click="topublic(row)"
+          >
+            继续编辑
+          </el-button>
+          <el-button
+            v-else
+            type="primary"
+            size="mini"
+            @click="articleEdit(row)"
+          >
+            修改
+          </el-button>
+          <el-button
+            v-if="row.isorder"
+            type="danger"
+            size="mini"
+            @click="handleUpdate(row)"
+          >
+            取消置顶
+          </el-button>
+          <el-button v-else type="info" size="mini" @click="handleUpdate(row)">
+            置顶
+          </el-button>
+          <el-button type="danger" size="mini" @click="delArticle(row)">
+            删除
           </el-button>
         </template>
       </el-table-column>
@@ -128,6 +167,7 @@
       :total="total"
       :page.sync="listQuery.page"
       :limit.sync="listQuery.limit"
+      :pageSize="[10, 20, 30]"
       @pagination="getList"
     />
 
@@ -228,10 +268,11 @@
 
 <script>
 import {
-  fetchList,
+  getArtList,
   fetchPv,
   createArticle,
   updateArticle,
+  deleteArticle,
 } from "@/api/article";
 import waves from "@/directive/waves"; // waves directive
 import { parseTime } from "@/utils";
@@ -275,11 +316,11 @@ export default {
       listLoading: true,
       listQuery: {
         page: 1,
-        limit: 20,
+        limit: 10,
         // importance: undefined,
         // title: undefined,
         // type: undefined,
-        // sort: "+id",
+        sort: "-id",
       },
       importanceOptions: [1, 2, 3],
       calendarTypeOptions,
@@ -329,17 +370,64 @@ export default {
     this.getList();
   },
   methods: {
+    //获取列表
     getList() {
       this.listLoading = true;
-      fetchList(this.listQuery).then((response) => {
+      getArtList(this.listQuery).then((response) => {
         this.list = response.data;
-        this.total = 20;
-
+        this.total = response.total;
         // Just to simulate the time of the request
         setTimeout(() => {
           this.listLoading = false;
-        }, 1.5 * 1000);
+        }, 1 * 1000);
       });
+    },
+    //编辑草稿
+    topublic(row) {
+      this.$router.push({
+        name: "ArticlePub",
+        query: {
+          aid: row.id,
+          ispublish:false
+        },
+      });
+    },
+    articleEdit(row) {
+      this.$router.push({
+        name: "ArticlePub",
+        query: {
+          aid: row.id,
+          ispublish:true
+        },
+      });
+    },
+    //删除文章
+    delArticle(row) {
+      this.$confirm("此操作将永久删除该内容, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          this.listLoading = true;
+          deleteArticle(row.id)
+            .then((response) => {
+              this.$message({
+                type: "success",
+                message: "删除成功!",
+              });
+              this.handleFilter();
+            })
+            .catch((err) => {
+              this.listLoading = false;
+            });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除",
+          });
+        });
     },
     handleFilter() {
       this.listQuery.page = 1;

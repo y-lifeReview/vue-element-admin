@@ -6,21 +6,49 @@
       :rules="rules"
       class="form-container"
     >
-      <sticky :z-index="10" :class-name="'sub-navbar ' + postForm.status">
+      <sticky :z-index="10" :class-name="'sub-navbar '">
         <!-- <CommentDropdown v-model="postForm.comment_disabled" /> -->
         <!-- <PlatformDropdown v-model="postForm.platforms" /> -->
         <!-- <SourceUrlDropdown v-model="postForm.source_uri" /> -->
-        <el-button
-          v-loading="loading"
-          style="margin-left: 10px"
-          type="success"
-          @click="submitForm"
-        >
-          发布
-        </el-button>
-        <el-button v-loading="loading" type="warning" @click="draftForm">
-          保存
-        </el-button>
+        <template v-if="status === 'publish'">
+          <el-button
+            v-loading="loading"
+            style="margin-left: 10px"
+            type="success"
+            @click="submitForm(1)"
+          >
+            发布
+          </el-button>
+          <el-button v-loading="loading" type="warning" @click="submitForm(0)">
+            保存为草稿
+          </el-button>
+        </template>
+        <template v-else-if="status === 'draft'">
+          <el-button
+            v-loading="loading"
+            style="margin-left: 10px"
+            type="success"
+            @click="draftForm(1)"
+          >
+            发布
+          </el-button>
+          <el-button v-loading="loading" type="warning" @click="draftForm(0)">
+            更新草稿
+          </el-button>
+        </template>
+        <template v-else> 
+          <el-button
+            v-loading="loading"
+            style="margin-left: 10px"
+            type="success"
+            @click="draftForm(1)"
+          >
+            发布
+          </el-button>
+          <el-button v-loading="loading" type="warning" @click="draftForm(0)">
+            保存为草稿
+          </el-button>
+        </template>
       </sticky>
 
       <div class="createPost-main-container">
@@ -222,7 +250,12 @@ import Upload from "@/components/Upload/SingleImage3";
 import MDinput from "@/components/MDinput";
 import Sticky from "@/components/Sticky"; // 粘性header组件
 import { validURL } from "@/utils/validate";
-import { fetchArticle, articlePub } from "@/api/article";
+import {
+  fetchArticle,
+  articlePub,
+  draftInfo,
+  draftUpdate,
+} from "@/api/article";
 import { searchUser, searchCate } from "@/api/remote-search";
 // import { CommentDropdown, PlatformDropdown, SourceUrlDropdown } from './Dropdown'
 
@@ -232,17 +265,11 @@ const defaultForm = {
   isPassword: false,
   ques: "",
   category: "",
-  // status: "draft",
   title: "", // 文章题目
   content: "", // 文章内容
   content_short: "", // 文章摘要
-  // source_uri: '', // 文章外链
   image_uri: "", // 文章图片
-  // display_time: undefined, // 前台展示时间
-  // id: undefined,
-  // platforms: ['a-platform'],
-  // comment_disabled: false,
-  // importance: 0
+  uid: 6,
 };
 
 export default {
@@ -282,6 +309,7 @@ export default {
       }
     };
     return {
+      status: "publish", //publish发布全新文章、draft更新草稿、update更新文章
       postForm: Object.assign({}, defaultForm),
       loading: false,
       userListOptions: [],
@@ -319,6 +347,8 @@ export default {
   mounted() {
     this.getRemoteUserList();
     this.getAllCategory();
+    //是否编辑草稿
+    this.isEditDraft();
   },
   created() {
     if (this.isEdit) {
@@ -332,6 +362,53 @@ export default {
     this.tempRoute = Object.assign({}, this.$route);
   },
   methods: {
+    isEditDraft() {
+      let { aid, ispublish } = this.$route.query;
+      //是否发布新文章
+      if (aid === undefined) {
+        return;
+      }
+      if (ispublish) {
+        this.status = "update";
+      } else {
+        this.status = "draft";
+      }
+
+      //获取草稿信息
+      const loading = this.$loading({
+        target: ".createPost-container",
+        lock: true,
+        text: "数据获取中...",
+        spinner: "el-icon-loading",
+        background: "rgba(0, 0, 0, 0.7)",
+      });
+      // loading.close();
+      draftInfo(aid).then((response) => {
+        console.log("草稿信息获取", response);
+        if (response.code === 200) {
+          let info = response.data[0];
+          if (info.title) this.postForm.title = info.title;
+          if (info.user_id) this.postForm.author = "明天下小雨_" + info.user_id;
+          if (info.category) this.postForm.category = info.category;
+          if (info.is_password) {
+            this.postForm.isPassword = true;
+            if (info.ques) this.postForm.ques = info.ques;
+            if (info.anwser) this.postForm.anwser = info.anwser;
+          }
+          if (info.isorder) this.postForm.isOrder = true;
+          if (info.summary) this.postForm.content_short = info.summary;
+          if (info.md_url) this.postForm.content = info.md_url;
+          if (info.img) this.postForm.image_uri = info.img;
+          loading.close();
+        } else {
+          this.$message({
+            message: "获取草稿失败",
+            type: "error",
+          });
+          loading.close();
+        }
+      });
+    },
     fetchData(id) {
       fetchArticle(id)
         .then((response) => {
@@ -362,59 +439,112 @@ export default {
       const title = "Edit Article";
       document.title = `${title} - ${this.postForm.id}`;
     },
-    submitForm() {
-      this.postForm.uid = this.postForm.author.split("_")[1];
-      // console.log(this.postForm);
-      this.$refs.postForm.validate((valid) => {
-        if (valid) {
-          this.loading = true;
-          let _this = this
-          articlePub(this.postForm)
-            .then((result) => {
-              _this.$notify({
-                title: "成功",
-                message: "发布文章成功",
-                type: "success",
-                duration: 2000,
+    submitForm(ispublish) {
+      if (ispublish) {
+        //发布
+        // console.log(this.postForm);
+        this.postForm.uid = this.postForm.author.split("_")[1] || null;
+        this.$refs.postForm.validate((valid) => {
+          if (valid) {
+            this.loading = true;
+            let _this = this;
+            this.postForm.ispublish = true;
+            articlePub(this.postForm)
+              .then((result) => {
+                _this.$notify({
+                  title: "成功",
+                  message: "发布文章成功",
+                  type: "success",
+                  duration: 2000,
+                });
+                _this.loading = false;
+                _this.$router.back();
+              })
+              .catch((err) => {
+                this.$notify({
+                  title: "失败",
+                  message: "发布文章失败",
+                  type: "fail",
+                  duration: 2000,
+                });
+                _this.loading = false;
               });
-              _this.loading = false;
-            })
-            .catch((err) => {
-              this.$notify({
-                title: "失败",
-                message: "发布文章失败",
-                type: "fail",
-                duration: 2000,
-              });
-              _this.loading = false;
-            });
-
-          // this.postForm.status = "published";
-          
-        } else {
-          console.log("error submit!!");
-          return false;
-        }
-      });
-    },
-    draftForm() {
-      if (
-        this.postForm.content.length === 0 ||
-        this.postForm.title.length === 0
-      ) {
-        this.$message({
-          message: "请填写必要的标题和内容",
-          type: "warning",
+          } else {
+            console.log("error submit!!");
+            return false;
+          }
         });
-        return;
+      } else {
+        //保存为草稿
+        this.loading = true;
+        if (this.postForm.author) {
+          this.postForm.uid = this.postForm.author.split("_")[1];
+        } else {
+          this.postForm.uid = null;
+        }
+        let _this = this;
+        this.postForm.ispublish = false;
+        articlePub(this.postForm)
+          .then((result) => {
+            _this.$notify({
+              title: "成功",
+              message: "保存草稿成功",
+              type: "success",
+              duration: 2000,
+            });
+            _this.loading = false;
+            _this.status = "draft";
+          })
+          .catch((err) => {
+            this.$notify({
+              title: "失败",
+              message: "保存草稿失败",
+              type: "fail",
+              duration: 2000,
+            });
+            _this.loading = false;
+          });
       }
-      this.$message({
-        message: "保存成功",
-        type: "success",
-        showClose: true,
-        duration: 1000,
-      });
-      this.postForm.status = "draft";
+    },
+    draftForm(ispublish) {
+      this.loading = true;
+      let _this = this;
+      this.postForm.aid = this.$route.query.aid;
+      this.postForm.ispublish = ispublish;
+      if (ispublish) {
+        draftUpdate(this.postForm)
+          .then((response) => {
+            if (response.code === 200) {
+              this.$message({
+                message: "发布成功",
+                type: "success",
+                showClose: true,
+                duration: 1000,
+              });
+            }
+            _this.loading = false;
+            _this.$router.back()
+          })
+          .catch((err) => {
+            _this.loading = false;
+          });
+      } else {
+        draftUpdate(this.postForm)
+          .then((response) => {
+            if (response.code === 200) {
+              this.$message({
+                message: "保存成功",
+                type: "success",
+                showClose: true,
+                duration: 1000,
+              });
+            }
+            _this.loading = false;
+          })
+          .catch((err) => {
+            _this.loading = false;
+          });
+      }
     },
     getRemoteUserList(query) {
       searchUser(query).then((response) => {
