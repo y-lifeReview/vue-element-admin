@@ -44,7 +44,7 @@
       >
         <template slot-scope="{ row }">
           <template v-if="row.edit">
-            <el-input v-model="row.content" class="edit-input" size="small" />
+            <el-input :ref="'input'+row.id" v-model="row.content" class="edit-input" size="small" />
             <el-button
               class="cancel-btn"
               size="small"
@@ -78,7 +78,7 @@
             v-else
             type="primary"
             size="mini"
-            @click="row.edit = !row.edit"
+            @click="handelEdit(row)"
           >
             编辑
           </el-button>
@@ -235,6 +235,13 @@ export default {
     handleFilter() {
       this.listQuery.page = 1;
       this.getList();
+    },
+    handelEdit(row){
+      row.edit = !row.edit
+      this.$nextTick(()=>{
+        let id = 'input'+row.id;
+        this.$refs[id].focus()
+      })
     },
     sortChange(data) {
       const { prop, order } = data;
