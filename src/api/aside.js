@@ -6,13 +6,14 @@ export function asideInfo() {
     method: 'get'
   })
 }
-export function asideShow(is_show, id) {
+export function asideShow(is_show, id, father_id) {
   return request({
     url: '/aside/show',
     method: 'post',
     data: {
       id,
-      is_show
+      is_show,
+      father_id
     }
   })
 }

@@ -37,11 +37,11 @@
     >
       新增导航
     </el-button>
-
+    <!--  -->
     <el-table
       :data="asideList"
       style="width: 100%; margin-bottom: 20px"
-      row-key="id"
+      row-key="title"
       border
       v-loading="listLoading"
       default-expand-all
@@ -50,10 +50,10 @@
       <el-table-column label="标题" width="180">
         <template slot-scope="{ row }">
           <el-input
-            :ref="'input' + row.id"
+            :ref="'input' + row.title"
             v-if="row.edit"
             v-model="row.title"
-            :class="row.zindex == 1 ? 'edit-input' : 'edit-input-child'"
+            :class="row.children == 1 ? 'edit-input' : 'edit-input-child'"
             size="small"
           />
           <span v-else>{{ row.title }}</span>
@@ -84,7 +84,7 @@
           <span v-else>{{ row.path === "0" ? "无" : row.path }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="icon_string" label="图标">
+      <el-table-column width="100px" prop="icon_string" label="图标">
         <template slot-scope="{ row }">
           <el-input
             v-if="row.edit"
@@ -144,6 +144,16 @@
               显示
             </el-button>
           </template>
+
+          <!-- 排序按钮控制 -->
+          <!-- <el-button
+            type="success"
+            size="mini"
+            icon="el-icon-circle-check-outline"
+            @click="confirmEdit(row)"
+          >
+            确认
+          </el-button> -->
         </template>
       </el-table-column>
     </el-table>
@@ -176,7 +186,6 @@ export default {
       this.listLoading = true;
       asideInfo().then((response) => {
         let data = response.data;
-        // console.log('导航数据',data)
         data = data.map((v) => {
           if (v.children) {
             v.children = v.children.map((item) => {
@@ -195,9 +204,8 @@ export default {
           v.originalIcon = v.icon_string;
           return v;
         });
-        console.log("data", data);
+        // console.log("data", data);
         this.asideList = data;
-        // this.total = response.total;
         setTimeout(() => {
           this.listLoading = false;
         }, 1 * 1000);
@@ -206,9 +214,9 @@ export default {
     //导航显示
     handleShow(row) {
       console.log("参数", row);
-      let { is_show, id } = row;
+      let { is_show, id, father_id } = row;
       this.listLoading = true;
-      asideShow(is_show, id).then((response) => {
+      asideShow(is_show, id, father_id).then((response) => {
         // console.log("显示控制结果", response);
         if (response.code === 200) {
           this.getAisdeInfo();
@@ -266,13 +274,12 @@ export default {
       });
     },
     handleEdit(row) {
-      // console.log("修改信息", row);
       //关闭其他正在编辑的行
       this.asideList = this.asideList.map((v) => {
         if (v.children) {
           v.children = v.children.map((item) => {
-            item.edit = false
-            return item;  
+            item.edit = false;
+            return item;
           });
         }
         v.edit = false;
@@ -280,7 +287,7 @@ export default {
       });
       row.edit = !row.edit;
       this.$nextTick(() => {
-        this.$refs["input" + row.id].focus();
+        this.$refs["input" + row.title].focus();
       });
     },
     //取消修改
@@ -297,6 +304,7 @@ export default {
     },
     //确认修改完成
     confirmEdit(row) {
+     
       //参数检查
       if (
         row.title.trim() === "" ||
@@ -312,6 +320,7 @@ export default {
       //请求发送
       this.listLoading = true;
       asideChange({
+        zindex: row.father_id ? 2 : 1,
         id: row.id,
         title: row.title,
         is_outweb: row.is_outweb,
@@ -370,21 +379,6 @@ export default {
         .catch((err) => {
           this.listLoading = false;
         });
-    },
-
-    sortChange(data) {
-      const { prop, order } = data;
-      if (prop === "id") {
-        this.sortByID(order);
-      }
-    },
-    sortByID(order) {
-      if (order === "ascending") {
-        this.listQuery.sort = "+id";
-      } else {
-        this.listQuery.sort = "-id";
-      }
-      this.handleFilter();
     },
   },
 };

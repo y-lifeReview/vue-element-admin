@@ -227,7 +227,7 @@
 
         <el-form-item prop="content" style="margin-bottom: 30px">
           <!-- <Tinymce ref="editor" v-model="postForm.content" :height="400" /> -->
-          <markdown-editor v-model="postForm.content" height="400px" />
+          <markdown-editor v-model="postForm.content" height="600px" />
         </el-form-item>
 
         <el-form-item
