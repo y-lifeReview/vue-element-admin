@@ -132,6 +132,18 @@ export const constantRoutes = [
     ]
   },
   {
+    path: '/images',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/images/index'),
+        name: 'images',
+        meta: { title: '相册管理', icon: 'edit' }
+      }
+    ]
+  },
+  {
     path: '/guide',
     component: Layout,
     redirect: '/guide/index',
