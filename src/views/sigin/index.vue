@@ -5,12 +5,14 @@
       placeholder="内容"
       style="width: 300px"
       @keyup.enter.native="addSign"
+      v-permission="['admin']"
     />
     <el-button
       style="margin-left: 10px"
       type="primary"
       icon="el-icon-edit"
       @click="addSign"
+      v-permission="['admin']"
     >
       新增签名
     </el-button>
@@ -31,7 +33,6 @@
         sortable="custom"
         align="center"
         width="80"
-        
       >
         <template slot-scope="{ row }">
           <span>{{ row.id }}</span>
@@ -44,7 +45,12 @@
       >
         <template slot-scope="{ row }">
           <template v-if="row.edit">
-            <el-input :ref="'input'+row.id" v-model="row.content" class="edit-input" size="small" />
+            <el-input
+              :ref="'input' + row.id"
+              v-model="row.content"
+              class="edit-input"
+              size="small"
+            />
             <el-button
               class="cancel-btn"
               size="small"
@@ -66,6 +72,7 @@
       >
         <template slot-scope="{ row }">
           <el-button
+            v-permission="['admin']"
             v-if="row.edit"
             type="success"
             size="small"
@@ -79,10 +86,16 @@
             type="primary"
             size="mini"
             @click="handelEdit(row)"
+            v-permission="['admin']"
           >
             编辑
           </el-button>
-          <el-button type="primary" size="mini" @click="handledel(row)">
+          <el-button
+            v-permission="['admin']"
+            type="primary"
+            size="mini"
+            @click="handledel(row)"
+          >
             删除
           </el-button>
         </template>
@@ -219,7 +232,7 @@ export default {
                 type: "success",
                 message: "删除成功!",
               });
-              this.handleFilter()
+              this.handleFilter();
             })
             .catch((err) => {
               this.listLoading = false;
@@ -236,12 +249,12 @@ export default {
       this.listQuery.page = 1;
       this.getList();
     },
-    handelEdit(row){
-      row.edit = !row.edit
-      this.$nextTick(()=>{
-        let id = 'input'+row.id;
-        this.$refs[id].focus()
-      })
+    handelEdit(row) {
+      row.edit = !row.edit;
+      this.$nextTick(() => {
+        let id = "input" + row.id;
+        this.$refs[id].focus();
+      });
     },
     sortChange(data) {
       const { prop, order } = data;

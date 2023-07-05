@@ -95,6 +95,7 @@
         </template>
       </el-table-column>
       <el-table-column
+      v-if="checkPermission(['admin'])"
         label="加密问题答案"
         :show-overflow-tooltip="true"
         width="110px"
@@ -141,6 +142,7 @@
             type="primary"
             size="mini"
             @click="articleEdit(row)"
+            
           >
             修改
           </el-button>
@@ -149,13 +151,15 @@
             type="danger"
             size="mini"
             @click="handleUpdate(row)"
+            v-permission="['admin']"
           >
             取消置顶
           </el-button>
-          <el-button v-else type="info" size="mini" @click="handleUpdate(row)">
+          <el-button v-else type="info" size="mini" @click="handleUpdate(row)" v-permission="['admin']">
+            
             置顶
           </el-button>
-          <el-button type="danger" size="mini" @click="delArticle(row)">
+          <el-button v-permission="['admin']" type="danger" size="mini" @click="delArticle(row)">
             删除
           </el-button>
         </template>

@@ -15,7 +15,7 @@ export function searchCate() {
 }
 export function transactionList(query) {
   return request({
-    url: '/vue-element-admin/transaction/list',
+    url: '/lastView',
     method: 'get',
     params: query
   })

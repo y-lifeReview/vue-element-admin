@@ -3,8 +3,12 @@
 </template>
 
 <script>
+import 'prismjs/themes/prism.css';
+import '@toast-ui/editor/dist/i18n/zh-cn';
 import "codemirror/lib/codemirror.css"; // Editor's Dependency Style
 import "@toast-ui/editor/dist/toastui-editor.css"; // Editor's Style
+import '@toast-ui/editor-plugin-code-syntax-highlight/dist/toastui-editor-plugin-code-syntax-highlight.css';
+import codeSyntaxHighlight from '@toast-ui/editor-plugin-code-syntax-highlight/dist/toastui-editor-plugin-code-syntax-highlight-all.js';
 import Editor from "@toast-ui/editor";
 import defaultOptions from "./default-options";
 export default {
@@ -57,7 +61,7 @@ export default {
 
       required: false,
 
-      default: "en_US", // https://github.com/nhnent/tui.editor/tree/master/src/js/langs
+      default: "zh-CN", // https://github.com/nhnent/tui.editor/tree/master/src/js/langs
     },
   },
 
@@ -117,6 +121,7 @@ export default {
         el: document.getElementById(this.id),
 
         ...this.editorOptions,
+        plugins:[codeSyntaxHighlight]
       });
 
       if (this.value) {

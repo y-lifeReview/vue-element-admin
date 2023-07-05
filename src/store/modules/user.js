@@ -54,7 +54,7 @@ const actions = {
         username: username.trim(),
         password: hamcSha(password)
       }).then(response => {
-        // console.log('登录信息：', response)
+        console.log('登录信息：', response)
         const {
           data
         } = response
@@ -77,7 +77,7 @@ const actions = {
         const {
           data
         } = response
-
+        console.log('用户信息', response)
         if (!data) {
           reject('Verification failed, please Login again.')
         }
@@ -112,6 +112,7 @@ const actions = {
     dispatch
   }) {
     return new Promise((resolve, reject) => {
+      console.log('topken', state.token)
       logout(state.token).then(() => {
         commit('SET_TOKEN', '')
         commit('SET_ROLES', [])

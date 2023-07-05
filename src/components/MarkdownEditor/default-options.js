@@ -6,6 +6,7 @@ export default {
   useDefaultHTMLSanitizer: true,
   usageStatistics: false,
   hideModeSwitch: false,
+  theme: 'dark',
   toolbarItems: [
     ['heading', 'bold', 'italic', 'strike'],
     ['hr', 'quote'],

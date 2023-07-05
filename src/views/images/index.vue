@@ -2,26 +2,53 @@
   <div class="app-container">
     <h2>所有相册</h2>
     <div class="img_box">
-      <div v-for="(item,index) in 10" :key="index" class="img_cover">
+      <div v-for="(item, index) in imgList" @click="imgDetail(item.id)" :key="index" class="img_cover">
         <el-image
           class="image"
           fit="cover"
-          src="http://sprinkle-1300857039.cos.ap-chengdu.myqcloud.com/image/1672688756487cYdSsjNQ5iyA.jpg"
+          :src="item.src"
         >
         </el-image>
-        <div class="img_title"><span>标题</span><i class="iconfont icon-edit-square"></i></div>
+        <div class="img_title">
+          <span>{{ item.title }}</span>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { getImageCategory } from "@/api/image";
+
 export default {
   name: "",
   // components: {  },
   data() {
-    return {};
+    return {
+      imgList:[]
+    };
   },
+  mounted(){
+    this.getCate()
+  },
+  methods:{
+    getCate(){
+      getImageCategory().then((data)=>{
+        console.log('data',data)
+        this.imgList = data.data
+      }).catch((err)=>{
+        console.log('err',err)
+      })
+    },
+    imgDetail(id){
+      this.$router.push({
+        name:'imgDetail',
+        query:{
+          id:id
+        }
+      })
+    }
+  }
 };
 </script>
 <style scoped lang="scss">

@@ -34,6 +34,7 @@
       type="primary"
       icon="el-icon-edit"
       @click="addAsideRoute"
+      v-permission="['admin']"
     >
       新增导航
     </el-button>
@@ -101,6 +102,7 @@
         align="center"
         width="230"
         class-name="small-padding fixed-width"
+        
       >
         <template slot-scope="{ row }">
           <template v-if="row.edit">
@@ -122,7 +124,7 @@
               取消
             </el-button>
           </template>
-          <el-button v-else type="primary" size="mini" @click="handleEdit(row)">
+          <el-button v-else type="primary" size="mini" @click="handleEdit(row)" v-permission="['admin']">
             修改
           </el-button>
 
@@ -132,6 +134,7 @@
               type="warning"
               size="mini"
               @click="handleShow(row)"
+              v-permission="['admin']"
             >
               隐藏
             </el-button>
@@ -140,6 +143,7 @@
               type="primary"
               size="mini"
               @click="handleShow(row)"
+              v-permission="['admin']"
             >
               显示
             </el-button>

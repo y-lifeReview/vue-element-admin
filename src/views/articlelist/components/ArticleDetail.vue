@@ -6,7 +6,7 @@
       :rules="rules"
       class="form-container"
     >
-      <sticky :z-index="10" :class-name="'sub-navbar '">
+      <sticky v-permission="['admin']" :z-index="10" :class-name="'sub-navbar '">
         <!-- <CommentDropdown v-model="postForm.comment_disabled" /> -->
         <!-- <PlatformDropdown v-model="postForm.platforms" /> -->
         <!-- <SourceUrlDropdown v-model="postForm.source_uri" /> -->
@@ -104,7 +104,7 @@
                       v-model="postForm.category"
                       filterable
                       default-first-option
-                      remote
+                      allow-create
                       placeholder="Search category"
                     >
                       <el-option
@@ -231,12 +231,13 @@
         </el-form-item>
 
         <el-form-item
+        v-permission="['admin']"
           prop="image_uri"
           label-width="60px"
           label="封面图:"
           style="margin-bottom: 30px"
         >
-          <Upload v-model="postForm.image_uri" />
+          <Upload  v-model="postForm.image_uri" />
         </el-form-item>
       </div>
     </el-form>
