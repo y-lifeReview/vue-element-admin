@@ -175,20 +175,56 @@ export const constantRoutes = [{
     hidden: true
   }
   ]
+},
+{
+  path: '/video',
+  component: Layout,
+  meta: {
+    title: '视频管理',
+    icon: 'edit'
+  },
+  children: [{
+    path: 'index',
+    component: () => import('@/views/videos/index'),
+    name: 'allVideo',
+    meta: {
+      title: '视频合集',
+      icon: 'edit'
+    }
+  },
+  {
+    path: 'add',
+    component: () => import('@/views/videos/add'),
+    name: 'addVideo',
+    meta: {
+      title: '新建合集',
+      icon: 'edit',
+      roles: ['admin']
+    }
+  },
+  {
+    path: 'detail',
+    component: () => import('@/views/videos/detail'),
+    name: 'videoDetail',
+    meta: {
+      title: '视频列表'
+    },
+    hidden: true
+  }
+  ]
+},
+{
+  path: '/dynamic',
+  component: Layout,
+  children: [
+    {
+      path: 'index',
+      component: () => import('@/views/dynamic/index'),
+      name: 'dynamic',
+      meta: { title: '动态发布', icon: 'edit' }
+    }
+  ]
 }
-  // {
-  //   path: '/guide',
-  //   component: Layout,
-  //   redirect: '/guide/index',
-  //   children: [
-  //     {
-  //       path: 'index',
-  //       component: () => import('@/views/guide/index'),
-  //       name: 'Guide',
-  //       meta: { title: 'Guide', icon: 'guide' }
-  //     }
-  //   ]
-  // },
   // {
   //   path: '/profile',
   //   component: Layout,

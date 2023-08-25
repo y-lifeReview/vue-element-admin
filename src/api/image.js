@@ -1,12 +1,15 @@
 import request from '@/utils/request'
 // 新增相册分类
-export function addImageCategory(title, imgs) {
+export function addImageCategory(title, imgs, ispassword, ques, anwser) {
   return request({
     url: '/addImageCate',
     method: 'post',
     data: {
       title,
-      imgs
+      imgs,
+      ispassword,
+      ques,
+      anwser
     }
   })
 }

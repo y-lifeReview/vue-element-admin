@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-form style="width: 460px" ref="form" :model="form" label-width="80px">
+    <el-form ref="form" :model="form" label-width="120px">
       <el-form-item label="相册名称">
         <el-input
           show-word-limit
@@ -11,6 +11,57 @@
           v-model="form.name"
         ></el-input>
       </el-form-item>
+      <el-row>
+        <el-col :span="3">
+          <el-form-item
+            style="margin-bottom: 10px"
+            label-width="120px"
+            label="是否加密:"
+          >
+            <el-switch
+              v-model="isPassword"
+              active-color="#13ce66"
+              inactive-color="gray"
+              name="isPassword"
+            >
+            </el-switch>
+          </el-form-item>
+        </el-col>
+        <el-col v-if="isPassword" :span="8">
+          <el-form-item
+            style="margin-bottom: 10px"
+            label-width="60px"
+            label="问题:"
+            prop="ques"
+          >
+            <el-input
+              v-model="ques"
+              :rows="1"
+              type="textarea"
+              class="article-textarea"
+              autosize
+              placeholder="Please enter the ques"
+            />
+          </el-form-item>
+        </el-col>
+        <el-col v-if="isPassword" :span="8">
+          <el-form-item
+            style="margin-bottom: 10px"
+            label-width="60px"
+            label="答案:"
+            prop="anwser"
+          >
+            <el-input
+              v-model="anwser"
+              :rows="1"
+              type="textarea"
+              class="article-textarea"
+              autosize
+              placeholder="Please enter the anwser"
+            />
+          </el-form-item>
+        </el-col>
+      </el-row>
       <el-form-item v-if="checkPermission(['admin'])" label="上传图片">
         <el-upload
           class="upload-demo"
@@ -49,6 +100,9 @@ export default {
       imgurl: process.env.VUE_APP_BASE_IMGAPI,
       dataObj: {},
       imgList: [],
+      isPassword: 0,
+      ques: "无",
+      anwser: "无",
       isUpload: false,
       form: {
         name: "",
@@ -69,7 +123,13 @@ export default {
       }
 
       this.isUpload = true;
-      addImageCategory(this.form.name.trim(), this.imgList)
+      addImageCategory(
+        this.form.name.trim(),
+        this.imgList,
+        this.isPassword,
+        this.ques,
+        this.anwser
+      )
         .then((res) => {
           console.log("结果", res);
           this.isUpload = false;
@@ -86,9 +146,8 @@ export default {
     beforeUpload() {
       this.uploading = true;
       this.dataObj.token = getToken();
-
     },
-    handleImageSuccess(res,file,fileList) {
+    handleImageSuccess(res, file, fileList) {
       // console.log("上传结果", res,file,fileList);
       this.imgList.push(res.data.url);
       this.uploading = false;
@@ -101,4 +160,14 @@ export default {
   },
 };
 </script>
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.article-textarea ::v-deep {
+  textarea {
+    padding-right: 40px;
+    resize: none;
+    border: none;
+    border-radius: 0px;
+    border-bottom: 1px solid #bfcbd9;
+  }
+}
+</style>
